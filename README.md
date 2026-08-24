@@ -43,7 +43,7 @@ cmake --build build -j
 The obvious formulation, searching over subsets of players, is exponential, and
 that is not a theoretical concern. The first version of this solver did exactly
 that, with branch and bound and two admissible pruning bounds. On a 300-player
-pool it explored **16.8 billion nodes and took just over three minutes** to
+pool it explored **16.8 billion nodes and took just over two minutes** to
 return one lineup.
 
 The problem is that no cheap bound is tight enough. Players are sorted by
@@ -88,17 +88,19 @@ Same machine, same pools, same answers:
 | 120  | 1,036 ms       | 2.1 ms              | 493× |
 | 180  | 13,802 ms      | 2.9 ms              | 4,759× |
 | 240  | 23,340 ms      | 3.2 ms              | 7,294× |
-| 300  | 182,666 ms     | 3.8 ms              | **48,070×** |
+| 300  | 126,495 ms     | 3.8 ms              | **33,288×** |
 
 Branch and bound wins at 30 players, where setting up DP tables costs more than
 just searching. Everywhere else it loses, and the gap widens without bound.
 
-Scaling past where the old solver could go at all:
+Past 300 players the old solver stopped being worth timing repeatedly. The
+position-aware variant did finish, and the gap is the point:
 
-| Pool | Time | Pool | Time |
-|-----:|-----:|-----:|-----:|
-| 360  | 4.2 ms | 480 | 5.1 ms |
-| 600  | 6.0 ms |     |        |
+| Pool | Branch & bound | Dynamic programming |
+|-----:|---------------:|--------------------:|
+| 360  | 14.1 min       | 4.2 ms |
+| 480  | 34.6 min       | 5.1 ms |
+| 600  | 37.1 min       | 6.0 ms |
 
 Top-K on a 300-player pool:
 
