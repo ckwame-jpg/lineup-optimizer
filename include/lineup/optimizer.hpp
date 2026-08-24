@@ -35,8 +35,7 @@ struct SolveStats {
 /// each position is fixed the problem separates: each position independently
 /// solves "best j players for exactly this much salary", and the results are
 /// combined over the salary axis. That is a bounded knapsack per position plus
-/// a convolution, which is polynomial — unlike searching player subsets, which
-/// is not.
+/// a convolution, which is polynomial. Searching player subsets is not.
 ///
 /// The set of position-count vectors that can fill the roster is precomputed
 /// with bipartite matching, so FLEX slots need no special handling: a running

@@ -3,7 +3,7 @@
 Exact salary-cap lineup optimizer for daily fantasy football, in C++17.
 
 Given a pool of players with salaries and projected points, it returns the
-highest-projecting roster that fits the cap — and the next K best after it,
+highest-projecting roster that fits the cap, plus the next K best after it,
 ranked. The answers are optimal, not heuristic: no simulated annealing, no
 genetic algorithm, no "good enough" greedy pass.
 
@@ -40,7 +40,7 @@ cmake --build build -j
 
 ## How it works
 
-The obvious formulation — search over subsets of players — is exponential, and
+The obvious formulation, searching over subsets of players, is exponential, and
 that is not a theoretical concern. The first version of this solver did exactly
 that, with branch and bound and two admissible pruning bounds. On a 300-player
 pool it explored **16.8 billion nodes and took just over three minutes** to
@@ -61,11 +61,12 @@ you fix *how many* players come from each position, the problem separates:
 2. **Convolve over salary.** Combine the five position tables along the salary
    axis to find the best split of the cap between them, `O(P · S²)`.
 
-3. **Enumerate roster shapes.** Which count vectors are legal — is `(1 QB, 3 RB,
-   3 WR, 1 TE, 1 DST)` fillable? — is decided once at construction by bipartite
-   matching between slots and positions. This is what makes FLEX fall out for
-   free: a running back in RB2 versus FLEX is the same count vector, so it is
-   solved once rather than twice, and no deduplication pass is needed anywhere.
+3. **Enumerate roster shapes.** Which count vectors are legal, meaning whether
+   `(1 QB, 3 RB, 3 WR, 1 TE, 1 DST)` is fillable, gets decided once at
+   construction by bipartite matching between slots and positions. This is what
+   makes FLEX fall out for free: a running back in RB2 versus FLEX is the same
+   count vector, so it is solved once rather than twice, and no deduplication
+   pass is needed anywhere.
 
 The salary axis is quantised by the GCD of every salary and the cap. Real slates
 price in round hundreds, so this collapses 50,000 salary values into ~500
@@ -117,9 +118,9 @@ results are checked against a brute-force oracle that enumerates every legal
 9-player subset. The oracle is exponential and only usable on tiny pools, which
 is precisely why it is trustworthy:
 
-- `MatchesBruteForceOnTheMinimalPool` — top 10 lineups, exact projections
-- `MatchesBruteForceOnRandomPools` — 8 randomised pools, top 5 each
-- `RequestingMoreLineupsThanExistReturnsAllOfThem` — enumeration is complete
+- `MatchesBruteForceOnTheMinimalPool`: top 10 lineups, exact projections
+- `MatchesBruteForceOnRandomPools`: 8 randomised pools, top 5 each
+- `RequestingMoreLineupsThanExistReturnsAllOfThem`: enumeration is complete
 
 The DP and the old branch-and-bound implementation also independently agree to
 the cent on every benchmark pool.
@@ -131,7 +132,7 @@ and empty results rather than garbage when the pool cannot fill the roster.
 Projections are parsed to fixed-point centipoints rather than `double`. Pruning
 and DP comparisons run millions of times, and in binary floating point two
 mathematically equal rosters can compare unequal depending on the order their
-players were summed — which would make results depend on input ordering.
+players were summed, which would make results depend on input ordering.
 
 ## Input format
 
@@ -146,8 +147,8 @@ name,position,team,salary,projection
 
 Positions are `QB`, `RB`, `WR`, `TE`, `DST` (`DEF` is accepted for `DST`).
 Quoted fields are handled, so a comma in a player's name does not shift every
-later column. Parse errors name the 1-based line and what was wrong with it —
-one malformed row in six hundred is the common case, and "parse error" alone is
+later column. Parse errors name the 1-based line and what was wrong with it.
+One malformed row in six hundred is the common case, and "parse error" alone is
 useless.
 
 ## Usage
